@@ -1,3 +1,7 @@
-output "resource_group_name" {
+output "apply" {
   value = local.apply
+}
+
+output "sync" {
+  value = local.sync
 }
