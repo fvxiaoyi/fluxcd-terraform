@@ -1,29 +1,36 @@
-variable "github_owner" {
-  type    = string
-  default = "fvxiaoyi"
+variable "gitlab_owner" {
+  description = "gitlab owner"
+  type        = string
+  default     = "ebinsu"
 }
 
-variable "github_token" {
-  type    = string
-  default = "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"
+variable "gitlab_token" {
+  description = "gitlab token"
+  type        = string
+  sensitive   = true
+  default     = "*"
 }
 
 variable "repository_name" {
-  type    = string
-  default = "fluxcd"
+  description = "gitlab repository name"
+  type        = string
+  default     = "flux-cd"
 }
 
 variable "repository_visibility" {
-  type    = string
-  default = "public"
+  description = "how visible is the gitlab repo"
+  type        = string
+  default     = "public"
 }
 
 variable "branch" {
-  type    = string
-  default = "main"
+  description = "branch name"
+  type        = string
+  default     = "main"
 }
 
 variable "target_path" {
-  type    = string
-  default = "clusters/staging-cluster"
+  description = "flux sync target path"
+  type        = string
+  default     = "/cluster/staging"
 }
