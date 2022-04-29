@@ -3,5 +3,5 @@
 }*/
 
 output "sync" {
-  value = local.sync
+  value = data.kubectl_file_documents.sync.content
 }
