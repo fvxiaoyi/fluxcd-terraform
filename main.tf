@@ -1,6 +1,6 @@
 # Generate manifests
 data "flux_install" "main" {
-  target_path      = var.target_path
+  target_path      = "clusters/my-cluster"
   network_policy   = false
   components_extra = ["image-reflector-controller", "image-automation-controller"]
 }
@@ -41,7 +41,7 @@ resource "kubectl_manifest" "apply" {
 
 # Generate manifests
 data "flux_sync" "main" {
-  target_path = var.target_path
+  target_path = "clusters/my-cluster"
   url         = "https://github.com/${var.github_owner}/${var.repository_name}"
 }
 
@@ -53,10 +53,10 @@ data "kubectl_file_documents" "sync" {
 
 # Convert documents list to include parsed yaml data
 locals {
-  sync = [for v in data.kubectl_file_documents.sync.documents : {
-    data : yamldecode(v)
-    content : v
-    }
+  sync = [ for v in data.kubectl_file_documents.sync.documents : {
+    data: yamldecode(v)
+    content: v
+  }
   ]
 }
 
@@ -64,7 +64,7 @@ locals {
 resource "kubectl_manifest" "sync" {
   for_each   = { for v in local.sync : lower(join("/", compact([v.data.apiVersion, v.data.kind, lookup(v.data.metadata, "namespace", ""), v.data.metadata.name]))) => v.content }
   depends_on = [kubernetes_namespace.flux_system]
-  yaml_body  = each.value
+  yaml_body = each.value
 }
 
 # Generate a Kubernetes secret with the Git credentials
