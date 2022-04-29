@@ -77,6 +77,16 @@ resource "kubernetes_secret" "main" {
   }
 }
 
+# SSH
+locals {
+  known_hosts = "github.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg="
+}
+
+resource "tls_private_key" "main" {
+  algorithm   = "ECDSA"
+  ecdsa_curve = "P256"
+}
+
 # GitHub
 resource "github_repository" "main" {
   name       = var.repository_name
@@ -87,6 +97,13 @@ resource "github_repository" "main" {
 resource "github_branch_default" "main" {
   repository = github_repository.main.name
   branch     = var.branch
+}
+
+resource "github_repository_deploy_key" "main" {
+  title      = "staging-cluster"
+  repository = github_repository.main.name
+  key        = tls_private_key.main.public_key_openssh
+  read_only  = true
 }
 
 resource "github_repository_file" "install" {
