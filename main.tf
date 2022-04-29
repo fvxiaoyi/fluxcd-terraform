@@ -74,9 +74,8 @@ resource "kubernetes_secret" "main" {
   }
 
   data = {
-    identity       = tls_private_key.main.private_key_pem
-    "identity.pub" = tls_private_key.main.public_key_pem
-    known_hosts    = local.known_hosts
+    username = var.github_owner
+    password = var.github_token
   }
 }
 
