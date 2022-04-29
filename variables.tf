@@ -5,7 +5,7 @@ variable "github_owner" {
 
 variable "github_token" {
   type    = string
-  default = "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"
+  default = "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"
 }
 
 variable "repository_name" {
