@@ -25,5 +25,5 @@ provider "kubectl" {
 }
 
 provider "kubernetes" {
-  config_path = "~/.kube/config"
+  config_path = "/etc/rancher/k3s/k3s.yaml"
 }
