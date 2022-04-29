@@ -1,7 +1,7 @@
-/*output "apply" {
-  value = local.apply
+output "apply" {
+  value = data.flux_sync.main.secret
 }
 
 output "sync" {
-  value = data.kubectl_file_documents.sync.content
-}*/
+  value = data.flux_sync.main.namespace
+}
