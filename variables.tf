@@ -32,5 +32,5 @@ variable "branch" {
 variable "target_path" {
   description = "flux sync target path"
   type        = string
-  default     = "/cluster/staging"
+  default     = "cluster/staging"
 }
