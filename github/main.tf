@@ -136,7 +136,7 @@ resource "github_branch_default" "main" {
 }
 
 resource "github_repository_deploy_key" "main" {
-  title      = "flux-cd-cluster"
+  title      = "flux-cluster"
   repository = github_repository.main.name
   key        = tls_private_key.main.public_key_openssh
   read_only  = false
