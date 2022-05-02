@@ -136,10 +136,10 @@ resource "github_branch_default" "main" {
 }
 
 resource "github_repository_deploy_key" "main" {
-  title      = "staging-cluster"
+  title      = "flux-cd-cluster"
   repository = github_repository.main.name
   key        = tls_private_key.main.public_key_openssh
-  read_only  = true
+  read_only  = false
 }
 
 resource "github_repository_file" "install" {
