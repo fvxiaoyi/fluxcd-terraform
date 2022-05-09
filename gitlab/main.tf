@@ -180,6 +180,7 @@ resource "gitlab_repository_file" "kustomize" {
   depends_on = [gitlab_repository_file.sync]
 }
 
+# The project directory structure
 locals {
   files = fileset(path.module, "../source/*.yaml")
   data  = [ for f in local.files : {
@@ -195,4 +196,30 @@ resource "gitlab_repository_file" "apps" {
   file_path      =  "${var.target_path}/${each.value.name}"
   content        = each.value.content
   commit_message = "init flux cd"
+}
+
+resource "kubernetes_secret" "main" {
+  metadata {
+    name      = "slack-url"
+    namespace = "flux-system"
+  }
+
+  data = {
+    address = data.sops_file.secrets.data["slack_url"]
+  }
+}
+
+data "sops_file" "sops" {
+  source_file = "../secrets/sop.enc.asc"
+}
+
+resource "kubernetes_secret" "main" {
+  metadata {
+    name      = "sops-gpg"
+    namespace = "flux-system"
+  }
+
+  data = {
+    sops.asc = data.sops_file.sops
+  }
 }
