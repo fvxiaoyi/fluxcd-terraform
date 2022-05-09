@@ -22,9 +22,14 @@ terraform {
       source  = "hashicorp/tls"
       version = "3.1.0"
     }
-
+    sops = {
+      source  = "carlpett/sops"
+      version = ">= 0.7.0"
+    }
   }
 }
+
+provider "sops" {}
 
 provider "flux" {}
 
@@ -34,10 +39,14 @@ provider "kubernetes" {
   config_path = "/etc/rancher/k3s/k3s.yaml"
 }
 
+data "sops_file" "secrets" {
+  source_file = "secrets.enc.json"
+}
+
 provider "github" {
   # Configuration options
   owner = var.github_owner
-  token = var.github_token
+  token = data.sops_file.secrets.data["github_token"]
 }
 
 # SSH
