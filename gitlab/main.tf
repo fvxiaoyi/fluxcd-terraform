@@ -26,8 +26,14 @@ terraform {
       source  = "integrations/github"
       version = "4.24.0"
     }
+    sops = {
+      source  = "carlpett/sops"
+      version = ">= 0.7.0"
+    }
   }
 }
+
+provider "sops" {}
 
 provider "flux" {}
 
@@ -37,8 +43,12 @@ provider "kubernetes" {
   config_path = "/etc/rancher/k3s/k3s.yaml"
 }
 
+data "sops_file" "secrets" {
+  source_file = "../secrets/secrets.enc.json"
+}
+
 provider "gitlab" {
-  token = var.gitlab_token
+  token = data.sops_file.secrets.data["gitlab_token"]
 }
 
 # SSH
@@ -168,4 +178,92 @@ resource "gitlab_repository_file" "kustomize" {
   commit_message = "Add ${data.flux_sync.main.kustomize_path}"
 
   depends_on = [gitlab_repository_file.sync]
+}
+
+locals {
+  files = fileset(path.module, "../source/*.yaml")
+  data  = [ for f in local.files : {
+    name: basename(f)
+    content: file("${path.module}/${f}")
+  } ]
+}
+
+resource "gitlab_repository_file" "apps" {
+  for_each = { for f in local.data : f.name => f }
+  project        = gitlab_project.main.id
+  branch         = gitlab_project.main.default_branch
+  file_path      =  "/${var.target_path}/${each.value.name}"
+  content        = each.value.content
+  commit_message = "init flux cd"
+}
+
+data "local_file" "infrastructure" {
+  filename = "../source/infrastructure.yaml"
+}
+
+resource "gitlab_repository_file" "infrastructure" {
+  project        = gitlab_project.main.id
+  branch         = gitlab_project.main.default_branch
+  file_path      =  "/${var.target_path}/infrastructure.yaml"
+  content        = data.local_file.apps.content
+  commit_message = "init flux cd"
+
+  depends_on = [gitlab_repository_file.install]
+}
+
+data "local_file" "flux-system-automation" {
+  filename = "../source/flux-system-automation.yaml"
+}
+
+resource "gitlab_repository_file" "flux-system-automation" {
+  project        = gitlab_project.main.id
+  branch         = gitlab_project.main.default_branch
+  file_path      =  "/${var.target_path}/flux-system-automation.yaml"
+  content        = data.local_file.apps.content
+  commit_message = "init flux cd"
+
+  depends_on = [gitlab_repository_file.install]
+}
+
+
+data "local_file" "slack-alert" {
+  filename = "../source/slack-alert.yaml"
+}
+
+resource "gitlab_repository_file" "slack-alert" {
+  project        = gitlab_project.main.id
+  branch         = gitlab_project.main.default_branch
+  file_path      =  "/${var.target_path}/slack-alert.yaml"
+  content        = data.local_file.apps.content
+  commit_message = "init flux cd"
+
+  depends_on = [gitlab_repository_file.install]
+}
+
+data "local_file" "slack-provider" {
+  filename = "../source/slack-provider.yaml"
+}
+
+resource "gitlab_repository_file" "slack-provider" {
+  project        = gitlab_project.main.id
+  branch         = gitlab_project.main.default_branch
+  file_path      =  "/${var.target_path}/slack-provider.yaml"
+  content        = data.local_file.apps.content
+  commit_message = "init flux cd"
+
+  depends_on = [gitlab_repository_file.install]
+}
+
+data "local_file" "generic-receiver" {
+  filename = "../source/generic-receiver.yaml"
+}
+
+resource "gitlab_repository_file" "generic-receiver" {
+  project        = gitlab_project.main.id
+  branch         = gitlab_project.main.default_branch
+  file_path      =  "/${var.target_path}/generic-receiver.yaml"
+  content        = data.local_file.apps.content
+  commit_message = "init flux cd"
+
+  depends_on = [gitlab_repository_file.install]
 }

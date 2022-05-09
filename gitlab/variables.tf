@@ -14,7 +14,7 @@ variable "gitlab_token" {
 variable "repository_name" {
   description = "gitlab repository name"
   type        = string
-  default     = "flux-cd"
+  default     = "flux"
 }
 
 variable "repository_visibility" {
@@ -32,5 +32,5 @@ variable "branch" {
 variable "target_path" {
   description = "flux sync target path"
   type        = string
-  default     = "cluster/staging"
+  default     = "cluster"
 }
