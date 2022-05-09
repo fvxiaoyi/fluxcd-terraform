@@ -221,6 +221,6 @@ resource "kubernetes_secret" "sops-gpg" {
   }
 
   data = {
-    "sops.asc" = data.sops_file.sops
+    "sops.asc" = data.sops_file.sops.raw
   }
 }
