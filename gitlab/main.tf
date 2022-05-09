@@ -209,6 +209,17 @@ resource "kubernetes_secret" "slack-url" {
   }
 }
 
+resource "kubernetes_secret" "webhook-token" {
+  metadata {
+    name      = "webhook-token"
+    namespace = "flux-system"
+  }
+
+  data = {
+    address = data.sops_file.secrets.data["webhook_token"]
+  }
+}
+
 data "sops_file" "sops" {
   source_file = "../secrets/sop.enc.asc"
   input_type  = "raw"
