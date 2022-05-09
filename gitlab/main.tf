@@ -211,7 +211,7 @@ resource "kubernetes_secret" "slack-url" {
 
 data "sops_file" "sops" {
   source_file = "../secrets/sop.enc.asc"
-  input_type = raw
+  input_type = "raw"
 }
 
 resource "kubernetes_secret" "sops-gpg" {
