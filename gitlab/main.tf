@@ -198,7 +198,7 @@ resource "gitlab_repository_file" "apps" {
   commit_message = "init flux cd"
 }
 
-resource "kubernetes_secret" "main" {
+resource "kubernetes_secret" "slack-url" {
   metadata {
     name      = "slack-url"
     namespace = "flux-system"
@@ -213,7 +213,7 @@ data "sops_file" "sops" {
   source_file = "../secrets/sop.enc.asc"
 }
 
-resource "kubernetes_secret" "main" {
+resource "kubernetes_secret" "sops-gpg" {
   metadata {
     name      = "sops-gpg"
     namespace = "flux-system"
