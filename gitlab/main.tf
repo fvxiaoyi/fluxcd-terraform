@@ -192,7 +192,7 @@ resource "gitlab_repository_file" "apps" {
   for_each = { for f in local.data : f.name => f }
   project        = gitlab_project.main.id
   branch         = gitlab_project.main.default_branch
-  file_path      =  "/${var.target_path}/${each.value.name}"
+  file_path      =  "${var.target_path}/${each.value.name}"
   content        = each.value.content
   commit_message = "init flux cd"
 }
