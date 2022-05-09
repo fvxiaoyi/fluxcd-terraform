@@ -183,17 +183,17 @@ resource "gitlab_repository_file" "kustomize" {
 # The project directory structure
 locals {
   files = fileset(path.module, "../source/*.yaml")
-  data  = [ for f in local.files : {
-    name: basename(f)
-    content: file("${path.module}/${f}")
-  } ]
+  data = [for f in local.files : {
+    name : basename(f)
+    content : file("${path.module}/${f}")
+  }]
 }
 
 resource "gitlab_repository_file" "apps" {
-  for_each = { for f in local.data : f.name => f }
+  for_each       = { for f in local.data : f.name => f }
   project        = gitlab_project.main.id
   branch         = gitlab_project.main.default_branch
-  file_path      =  "${var.target_path}/${each.value.name}"
+  file_path      = "${var.target_path}/${each.value.name}"
   content        = each.value.content
   commit_message = "init flux cd"
 }
@@ -211,7 +211,7 @@ resource "kubernetes_secret" "slack-url" {
 
 data "sops_file" "sops" {
   source_file = "../secrets/sop.enc.asc"
-  input_type = "raw"
+  input_type  = "raw"
 }
 
 resource "kubernetes_secret" "sops-gpg" {
@@ -223,4 +223,36 @@ resource "kubernetes_secret" "sops-gpg" {
   data = {
     "sops.asc" = data.sops_file.sops.raw
   }
+}
+
+resource "gitlab_repository_file" "app-base-folders" {
+  project        = gitlab_project.main.id
+  branch         = gitlab_project.main.default_branch
+  file_path      = "apps/base/README.md"
+  content        = "base apps definition."
+  commit_message = "init flux cd"
+}
+
+resource "gitlab_repository_file" "app-overlays-folders" {
+  project        = gitlab_project.main.id
+  branch         = gitlab_project.main.default_branch
+  file_path      = "apps/overlays/README.md"
+  content        = "apps diff env config."
+  commit_message = "init flux cd"
+}
+
+resource "gitlab_repository_file" "infrastructure-source-folders" {
+  project        = gitlab_project.main.id
+  branch         = gitlab_project.main.default_branch
+  file_path      = "infrastructure/source/README.md"
+  content        = "HelmRepository, ImageRepository definition."
+  commit_message = "init flux cd"
+}
+
+resource "gitlab_repository_file" "infrastructure-image-policy-folders" {
+  project        = gitlab_project.main.id
+  branch         = gitlab_project.main.default_branch
+  file_path      = "infrastructure/image-policy/README.md"
+  content        = "policy of select image version."
+  commit_message = "init flux cd"
 }
