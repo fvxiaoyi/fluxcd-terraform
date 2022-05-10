@@ -216,7 +216,7 @@ resource "kubernetes_secret" "webhook-token" {
   }
 
   data = {
-    address = data.sops_file.secrets.data["webhook_token"]
+    token = data.sops_file.secrets.data["webhook_token"]
   }
 }
 
