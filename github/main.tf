@@ -40,7 +40,7 @@ provider "kubernetes" {
 }
 
 data "sops_file" "secrets" {
-  source_file = "secrets.enc.json"
+  source_file = "../secrets/secrets.enc.json"
 }
 
 provider "github" {
@@ -156,19 +156,99 @@ resource "github_repository_file" "install" {
   repository = github_repository.main.name
   file       = data.flux_install.main.path
   content    = data.flux_install.main.content
-  branch     = var.branch
+  branch     = github_branch_default.main.branch
 }
 
 resource "github_repository_file" "sync" {
   repository = github_repository.main.name
   file       = data.flux_sync.main.path
   content    = data.flux_sync.main.content
-  branch     = var.branch
+  branch     = github_branch_default.main.branch
 }
 
 resource "github_repository_file" "kustomize" {
   repository = github_repository.main.name
   file       = data.flux_sync.main.kustomize_path
   content    = data.flux_sync.main.kustomize_content
-  branch     = var.branch
+  branch     = github_branch_default.main.branch
+}
+
+# The project directory structure
+locals {
+  files = fileset(path.module, "../source/*.yaml")
+  data = [for f in local.files : {
+    name : basename(f)
+    content : file("${path.module}/${f}")
+  }]
+}
+
+resource "gitlab_repository_file" "apps" {
+  for_each       = { for f in local.data : f.name => f }
+  project        = github_repository.main.id
+  branch         = github_repository.main.default_branch
+  file_path      = "${var.target_path}/${each.value.name}"
+  content        = each.value.content
+  commit_message = "init flux cd"
+}
+
+resource "kubernetes_secret" "slack-url" {
+  metadata {
+    name      = "slack-url"
+    namespace = "flux-system"
+  }
+
+  data = {
+    address = data.sops_file.secrets.data["slack_url"]
+  }
+}
+
+resource "kubernetes_secret" "webhook-token" {
+  metadata {
+    name      = "webhook-token"
+    namespace = "flux-system"
+  }
+
+  data = {
+    token = data.sops_file.secrets.data["webhook_token"]
+  }
+}
+
+data "sops_file" "sops" {
+  source_file = "../secrets/sop.enc.asc"
+  input_type  = "raw"
+}
+
+resource "kubernetes_secret" "sops-gpg" {
+  metadata {
+    name      = "sops-gpg"
+    namespace = "flux-system"
+  }
+
+  data = {
+    "sops.asc" = data.sops_file.sops.raw
+  }
+}
+
+resource "gitlab_repository_file" "app-base-folders" {
+  project        = github_repository.main.id
+  branch         = github_repository.main.default_branch
+  file_path      = "apps/base/README.md"
+  content        = "base apps definition."
+  commit_message = "init flux cd"
+}
+
+resource "gitlab_repository_file" "app-overlays-folders" {
+  project        = github_repository.main.id
+  branch         = github_repository.main.default_branch
+  file_path      = "apps/overlays/README.md"
+  content        = "apps diff env config."
+  commit_message = "init flux cd"
+}
+
+resource "gitlab_repository_file" "infrastructure-source-folders" {
+  project        = github_repository.main.id
+  branch         = github_repository.main.default_branch
+  file_path      = "infrastructure/source/README.md"
+  content        = "HelmRepository, ImageRepository definition."
+  commit_message = "init flux cd"
 }

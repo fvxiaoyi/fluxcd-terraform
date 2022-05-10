@@ -4,12 +4,6 @@ variable "github_owner" {
   default     = "fvxiaoyi"
 }
 
-variable "github_token" {
-  type        = string
-  description = "github token"
-  default     = "*"
-}
-
 variable "repository_name" {
   type        = string
   default     = "flux-cd"
