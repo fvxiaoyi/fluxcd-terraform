@@ -182,12 +182,12 @@ locals {
   }]
 }
 
-resource "gitlab_repository_file" "apps" {
+resource "github_repository_file" "apps" {
   for_each       = { for f in local.data : f.name => f }
-  project        = github_repository.main.id
-  branch         = github_repository.main.default_branch
-  file_path      = "${var.target_path}/${each.value.name}"
+  repository     = github_repository.main.name
+  file           = "${var.target_path}/${each.value.name}"
   content        = each.value.content
+  branch         = github_branch_default.main.branch
   commit_message = "init flux cd"
 }
 
@@ -229,26 +229,26 @@ resource "kubernetes_secret" "sops-gpg" {
   }
 }
 
-resource "gitlab_repository_file" "app-base-folders" {
-  project        = github_repository.main.id
+resource "github_repository_file" "app-base-folders" {
+  repository     = github_repository.main.name
   branch         = github_repository.main.default_branch
-  file_path      = "apps/base/README.md"
+  file           = "apps/base/README.md"
   content        = "base apps definition."
   commit_message = "init flux cd"
 }
 
-resource "gitlab_repository_file" "app-overlays-folders" {
-  project        = github_repository.main.id
+resource "github_repository_file" "app-overlays-folders" {
+  repository     = github_repository.main.name
   branch         = github_repository.main.default_branch
-  file_path      = "apps/overlays/README.md"
+  file           = "apps/overlays/README.md"
   content        = "apps diff env config."
   commit_message = "init flux cd"
 }
 
-resource "gitlab_repository_file" "infrastructure-source-folders" {
-  project        = github_repository.main.id
+resource "github_repository_file" "infrastructure-source-folders" {
+  repository     = github_repository.main.name
   branch         = github_repository.main.default_branch
-  file_path      = "infrastructure/source/README.md"
+  file           = "infrastructure/source/README.md"
   content        = "HelmRepository, ImageRepository definition."
   commit_message = "init flux cd"
 }
