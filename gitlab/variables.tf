@@ -4,13 +4,6 @@ variable "gitlab_owner" {
   default     = "ebinsu"
 }
 
-variable "gitlab_token" {
-  description = "gitlab token"
-  type        = string
-  sensitive   = true
-  default     = "*"
-}
-
 variable "repository_name" {
   description = "gitlab repository name"
   type        = string
@@ -23,14 +16,14 @@ variable "repository_visibility" {
   default     = "public"
 }
 
-variable "branch" {
-  description = "branch name"
-  type        = string
-  default     = "main"
-}
-
 variable "target_path" {
   description = "flux sync target path"
   type        = string
   default     = "cluster"
+}
+
+variable "kubernetes_config_path" {
+  description = "kubernetes config path"
+  type        = string
+  default     = "/etc/rancher/k3s/k3s.yaml"
 }

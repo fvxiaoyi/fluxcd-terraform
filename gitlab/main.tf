@@ -40,7 +40,7 @@ provider "flux" {}
 provider "kubectl" {}
 
 provider "kubernetes" {
-  config_path = "/etc/rancher/k3s/k3s.yaml"
+  config_path = var.kubernetes_config_path
 }
 
 data "sops_file" "secrets" {
@@ -70,7 +70,7 @@ data "flux_install" "main" {
 data "flux_sync" "main" {
   target_path = var.target_path
   url         = "ssh://git@gitlab.com/${var.gitlab_owner}/${var.repository_name}.git"
-  branch      = var.branch
+  branch      = "main"
 }
 
 # Kubernetes
@@ -257,13 +257,5 @@ resource "gitlab_repository_file" "infrastructure-source-folders" {
   branch         = gitlab_project.main.default_branch
   file_path      = "infrastructure/source/README.md"
   content        = "HelmRepository, ImageRepository definition."
-  commit_message = "init flux cd"
-}
-
-resource "gitlab_repository_file" "infrastructure-image-policy-folders" {
-  project        = gitlab_project.main.id
-  branch         = gitlab_project.main.default_branch
-  file_path      = "infrastructure/image-policy/README.md"
-  content        = "policy of select image version."
   commit_message = "init flux cd"
 }
