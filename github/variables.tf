@@ -6,7 +6,7 @@ variable "github_owner" {
 
 variable "repository_name" {
   type        = string
-  default     = "flux-cd"
+  default     = "flux"
   description = "github repository name"
 }
 
