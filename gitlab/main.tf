@@ -139,7 +139,7 @@ resource "gitlab_project" "main" {
   name                   = var.repository_name
   visibility_level       = var.repository_visibility
   initialize_with_readme = true
-  default_branch         = var.branch
+  default_branch         = "main"
 }
 
 resource "gitlab_deploy_key" "main" {
